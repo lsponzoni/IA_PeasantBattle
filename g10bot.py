@@ -1,3 +1,4 @@
+import sys
 from base_client import LiacBot
 from g10Board import Board
 #=====================================
@@ -7,18 +8,20 @@ class G10Bot(LiacBot):
 	port = 50100
 	color = 0
 	
-	def select_move(moves, board)
+	def select_move(self, moves, board):
 		# min max...
 		return moves[0]
 	
 	def __init__(self, color, port):
 		super(G10Bot, self).__init__()
+		self.port = port
+		self.color = color
 
 	def on_move(self, state):
-		board =	board(state)
+		board =	Board(state)
 		moves = board.generate()
-		move = select_move(moves, board)
-		self.send_move(move)
+		move = self.select_move(moves, board)
+		self.send_move(move[0], move[1])
 		
 	def on_game_over(self, state):
 		print 'Game Over'
@@ -30,7 +33,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
     	if sys.argv[1] == 'black':
     		color = 1
-            port = 50200
-    bot = G10Bot()
+           	port = 50200
+    bot = G10Bot(color, port)
     bot.port = port
     bot.start()

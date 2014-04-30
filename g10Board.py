@@ -1,9 +1,8 @@
 """"Board"""
 import time
-import sys
 import random
 
-from base_cliente import LiacBot
+from base_client import LiacBot
 
 WHITE = 1
 BLACK = -1
