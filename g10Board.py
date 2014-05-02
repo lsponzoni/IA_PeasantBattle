@@ -62,7 +62,8 @@ class Board(object):
 	
     def heuristic(self):
 	return randint(-1, 10 ) 
-t   def generate(self):
+
+    def generate(self):
         moves = []
         for piece in self.my_pieces:
             ms = piece.generate()
