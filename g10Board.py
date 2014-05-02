@@ -2,6 +2,7 @@
 import time
 import random
 
+import copy
 from base_client import LiacBot
 
 WHITE = 1
@@ -45,12 +46,23 @@ class Board(object):
         return self.cells[pos[0]][pos[1]]
 
     def __setitem__(self, pos, value):
-        self._cells[pos[0]][pos[1]] = value
+        self.cells[pos[0]][pos[1]] = value
 
     def is_empty(self, pos):
         return self[pos] is None
 
-    def generate(self):
+    def __copy__(self):
+        return copy.deepcopy(self)
+    
+    def makeMove(self, move):
+	next_state = self.__copy__()
+        item = next_state.__getitem__(move[0])
+        next_state.__setitem__(move[1],item)
+	return next_state
+	
+    def heuristic(self):
+	return randint(-1, 10 ) 
+t   def generate(self):
         moves = []
         for piece in self.my_pieces:
             ms = piece.generate()
