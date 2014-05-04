@@ -17,6 +17,8 @@ PIECES = {
 
 PAWN = 'p'
 
+WIN_VALUE = 100 
+LOSE_VALUE = -100
 class Board(object):
     def __init__(self, state):
         self.cells = [[None for j in xrange(8)] for i in xrange(8)]
@@ -153,6 +155,16 @@ class Board(object):
         if not self.winner:
             self._verify_tie()
 
+    
+    def gameEnded(self):
+        if not self.winner:
+            self._verify_tie()
+            if self.draw:
+                return 0
+        else :
+            self.winner == 
+
+
     def set_board(self, c):
         i = 0
         for row in xrange(7, -1, -1):
@@ -227,6 +239,7 @@ class Board(object):
 
         return NONE
 
+
     def __copy__(self):
         return copy.deepcopy(self)
 
@@ -235,6 +248,7 @@ class Board(object):
         next_state.move(movement[0], movement[1])
         return next_state
 
+    
     def heuristic(self):
         return randint(-100, 100 ) 
 

@@ -5,44 +5,39 @@ from g10pieces import *
 
 MIN = 1
 MAX = 0
+
 def maxPlay(board, level):
         M_INF = -10000
         P_INF = 10000
-        return alphaBetaMaxMin(board, level, M_INF, P_INF)
+        return maxMinWithCut(board, level, M_INF, P_INF)
 
-def maxMin(board, alfa, beta, depth):
-	maxMinWithCut(board, depth, alfa, beta, minMax)
-	
-
-def maxMinWithCut(board, depth, lim_inf, lim_sup, minMax):
-        if level == 0:
-		return board.heuristic()  
-	if board.gameEnded() != None:
-		return board.gameEnded()
+def maxMinWithPrune(board, depth, lim_inf, lim_sup, minMax):
+	if level == 0 or board.gameEnded() != None:
+		return board.heuristic() 
+	possible_movements = board.generate()	
+	best_move = None
 	if minMax == MAX :
-		bestMove = 
-		for move in board.generate():
-               		nextBoard = board.makeMove(move)
-			= alfabeta(board, level , alfa, beta, MIN)
-			
+		best_chance = lim_inf
+		for movement in possible_movements:
+               		nextBoard = board.makeMove(movement)
+			_, chance  = maxMinWithPrune(nextBoard, level - 1, best_chance, lim_sup, MIN)
+			if chance > best_chance:
+				best_move = movement
+				best_chance = chance
+			if best_chance >= lim_sup:
+				break
+		return (best_move, best_chance)
 	if minMax == MIN:
-		alfabeta(board, level - 1, alfa, beta, MAX)
-
-def MinMax(moves, board):
-	for move in moves:
-		board.makeMove(move[0], move[1]) 
-
-# :This is the line that theoretically
-# changes between both functions...
-# actually board takes care of that...        
-def searchBestMove(moves, board):
-        bestHeuristicValue = board.MIN_HEURISTIC
-        bestMove = moves[0]
-        for move in moves: 
-                utility = board.makeMove(move).heuristic()
-                if( bestHeuristicValue < utility):
-                        bestMove = move
-        return (bestMove, utility)
+		best_chance = lim_sup
+		for movement in possible_movements:
+               		nextBoard = board.makeMove(movement)
+			_, chance  = maxMinWithPrune(nextBoard, level - 1, lim_inf, best_chance, MIN)
+			if chance < best_chance:
+				best_move = movement
+				best_chance = chance
+			if best_chance <= lim_inf:
+				break
+		return (best_move, best_chance)
 #=====================================
 class G10Bot(LiacBot):
 	name = 'Bot do Grupo 10'
@@ -50,19 +45,19 @@ class G10Bot(LiacBot):
 	port = 50100
 	color = 0
 	
-	def select_move(self, moves, board):
-                return maxPlay(moves, board, 2)
-		
-	
+
 	def __init__(self, color, port):
 		super(G10Bot, self).__init__()
 		self.port = port
 		self.color = color
 
+	def select_move(self, board):
+		move, cost = maxPlay(board, 4)
+		return move
+
 	def on_move(self, state):
 		board =	Board(state)
-		moves = board.generate()
-		move = self.select_move(moves, board)
+		move = self.select_move(board)
 		self.send_move(move[0], move[1])
 		
 	def on_game_over(self, state):
