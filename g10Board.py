@@ -26,6 +26,8 @@ class Board(object):
         self.black_pieces = []
         self.white_pieces = []
 
+        self.winner = None
+        self.draw = False
         self.team = state['who_moves']
         self.other_team = WHITE if (self.team == BLACK) else BLACK
         c = state['board']
@@ -155,16 +157,6 @@ class Board(object):
         if not self.winner:
             self._verify_tie()
 
-    
-    def gameEnded(self):
-        if not self.winner:
-            self._verify_tie()
-            if self.draw:
-                return 0
-        else :
-            self.winner == 
-
-
     def set_board(self, c):
         i = 0
         for row in xrange(7, -1, -1):
@@ -199,7 +191,8 @@ class Board(object):
 
     def generate(self):
         moves = []
-        for piece in self.my_pieces:
+        my_pieces = self.black_pieces if self.who_moves == BLACK else self.white_pieces   
+        for piece in my_pieces:
             ms = piece.generate()
             ms = [(piece.position, m) for m in ms]
             moves.extend(ms)
@@ -250,5 +243,5 @@ class Board(object):
 
     
     def heuristic(self):
-        return randint(-100, 100 ) 
+        return len(self.black_pieces) - len(self.white_pieces) 
 

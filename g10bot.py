@@ -9,10 +9,10 @@ MAX = 0
 def maxPlay(board, level):
         M_INF = -10000
         P_INF = 10000
-        return maxMinWithCut(board, level, M_INF, P_INF)
+        return maxMinWithPrune(board, level, M_INF, P_INF, MAX)
 
 def maxMinWithPrune(board, depth, lim_inf, lim_sup, minMax):
-	if level == 0 or board.gameEnded() != None:
+	if depth == 0 or board.winner != None or board.draw:
 		return board.heuristic() 
 	possible_movements = board.generate()	
 	best_move = None
@@ -20,7 +20,7 @@ def maxMinWithPrune(board, depth, lim_inf, lim_sup, minMax):
 		best_chance = lim_inf
 		for movement in possible_movements:
                		nextBoard = board.makeMove(movement)
-			_, chance  = maxMinWithPrune(nextBoard, level - 1, best_chance, lim_sup, MIN)
+			_, chance  = maxMinWithPrune(nextBoard, depth - 1, best_chance, lim_sup, MIN)
 			if chance > best_chance:
 				best_move = movement
 				best_chance = chance
@@ -31,7 +31,7 @@ def maxMinWithPrune(board, depth, lim_inf, lim_sup, minMax):
 		best_chance = lim_sup
 		for movement in possible_movements:
                		nextBoard = board.makeMove(movement)
-			_, chance  = maxMinWithPrune(nextBoard, level - 1, lim_inf, best_chance, MIN)
+			_, chance  = maxMinWithPrune(nextBoard, depth - 1, lim_inf, best_chance, MIN)
 			if chance < best_chance:
 				best_move = movement
 				best_chance = chance
@@ -52,12 +52,12 @@ class G10Bot(LiacBot):
 		self.color = color
 
 	def select_move(self, board):
-		move, cost = maxPlay(board, 4)
+		move, cost = maxPlay(board, 12)
 		return move
 
 	def on_move(self, state):
 		board =	Board(state)
-		move = self.select_move(board)
+		move, cost = self.select_move(board)
 		self.send_move(move[0], move[1])
 		
 	def on_game_over(self, state):

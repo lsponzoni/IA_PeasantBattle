@@ -108,16 +108,17 @@ class Rook(Piece):
         self.team = team
         self.position = position
 	self.type = ROOK
+	
     def _col(self, dir_):
         my_row, my_col = self.position
-        d = -1 if dir_ < 0 else 1
+        d = (-1 if dir_ < 0 else 1)
         for col in xrange(1, abs(dir_)):
             yield (my_row, my_col + d*col)
 
     def _row(self, dir_):
         my_row, my_col = self.position
 
-        d = -1 if dir_ < 0 else 1
+        d = (-1 if dir_ < 0 else 1)
         for row in xrange(1, abs(dir_)):
             yield (my_row + d*row, my_col)
             
