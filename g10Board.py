@@ -1,43 +1,176 @@
 """"Board"""
 import time
 import random
-
 import copy
 from base_client import LiacBot
+from g10pieces import  *
 
 WHITE = 1
 BLACK = -1
 NONE = 0
+
+PIECES = {
+        'r': Rook,
+        'p': Pawn,
+        'b': Bishop,
+        }
+
+PAWN = 'p'
+
 class Board(object):
     def __init__(self, state):
         self.cells = [[None for j in xrange(8)] for i in xrange(8)]
-        self.my_pieces = []
-        
-        PIECES = {
-            'r': Rook,
-            'p': Pawn,
-            'b': Bishop,
-            'q': Queen,
-            'n': Knight,
-        }
+        self.pieces = []
+        self.black_pieces = []
+        self.white_pieces = []
 
-        my_team = state['who_moves']
+        self.team = state['who_moves']
+        self.other_team = WHITE if (self.team == BLACK) else BLACK
         c = state['board']
+        self.who_moves = self.team
         i = 0
 
+        self.win_methods = [self.win_pawncapture, self.win_pawnpromotion]
         for row in xrange(7, -1, -1):
             for col in xrange(0, 8):
                 if c[i] != '.':
-                    cls = PIECES[c[i].lower()]
-                    team = BLACK if c[i].lower() == c[i] else WHITE
 
-                    piece = cls(self, team, (row, col))
+                    cls = PIECES[c[i].lower()]
+                    piece = cls(self, self.team, (row, col))
+                    if c[i].lower() == c[i] :
+                        self.black_pieces.append(piece) 
+
+                    else:
+                        self.white_pieces.append(piece)
+
+                    self.pieces.append(piece)
                     self.cells[row][col] = piece
 
-                    if team == my_team:
-                        self.my_pieces.append(piece)
 
                 i += 1
+
+    def is_valid_move(self, from_pos, to_pos):
+        dest_row, dest_col = to_pos
+
+        if not 0 <= dest_row <= 7 or not 0 <= dest_col <= 7:
+            return False
+
+        from_piece = self[from_pos]
+        if from_piece is None:
+            return False
+
+        if from_piece.team != self.who_moves:
+            return False
+
+        if not from_piece.is_valid_move(to_pos):
+            return False
+
+        return True
+
+    def _verify_win(self):
+        for win in self.win_methods:
+            r = win()
+            if r != NONE:
+                self.winner = r
+                return
+
+    def _verify_tie(self):
+        for tie in self.tie_methods:
+            if tie(self):
+                self.draw = True
+                return
+
+    def raw_move(self, from_pos, to_pos):
+        from_piece = self[from_pos]
+        to_piece = self[to_pos]
+
+        if to_piece is not None:
+            self.remove_piece(to_piece)
+
+        self[to_pos] = from_piece
+        self[from_pos] = None
+        from_piece.move_to(to_pos)
+
+    def move(self, from_pos, to_pos):
+        from_piece = self[from_pos]
+        to_piece = self[to_pos]
+
+        # Change bad move state
+        self.bad_move = False
+
+        # Verify if it is a valid move
+        if not self.is_valid_move(from_pos, to_pos):
+            self.bad_move = True
+            self._verify_win()
+            return
+
+        # Verify if it is an enpassant capture
+        if self.enpassant and from_piece.type == PAWN:
+            if to_pos[0] == self.enpassant[0] and to_pos[1] == self.enpassant[1]:
+                to_piece = self.enpassant_piece
+
+        # Verify if it is a capture (to remove from lists)
+        if to_piece is not None:
+            self.nocapture_moves = 0
+            self.remove_piece(to_piece)
+        else:
+            self.nocapture_moves += 1
+
+        # Clear enpassant state
+        self.enpassant = None
+        self.enpassant_piece = None
+
+        # Change enpassant state, if possible
+        if from_piece.type == PAWN:
+            d = abs(from_pos[0]-to_pos[0])
+            left = self[to_pos[0], to_pos[1]-1]
+            right = self[to_pos[0], to_pos[1]+1]
+
+            has_left_pawn = (left is not None and left.type == PAWN)
+            has_right_pawn = (right is not None and right.type == PAWN)
+
+            if d == 2 and (has_left_pawn or has_right_pawn):
+                row = (to_pos[0]+from_pos[0])//2
+                col = to_pos[1]
+                self.enpassant = (row, col)
+                self.enpassant_piece = from_piece
+
+        # Change s state
+        if self.who_moves == WHITE:
+            self.who_moves = BLACK
+        else: self.who_moves = WHITE
+
+        # Change positions
+        self[to_pos] = from_piece
+        self[from_pos] = None
+        from_piece.move_to(to_pos)#position = to_pos
+
+        # Change time state
+        self.move_time = config['max_move_time']
+
+        # Verify winning
+        self._verify_win()
+        if not self.winner:
+            self._verify_tie()
+
+    def set_board(self, c):
+        i = 0
+        for row in xrange(7, -1, -1):
+            for col in xrange(0, 8):
+                if c[i] != '.':
+                    self.new_piece(c[i], (row, col))
+
+                i += 1
+
+    def new_piece(self, type_, pos):
+        cls = PIECES[type_.lower()]
+        piece = cls(self, team, pos)
+        self._cells[pos[0]][pos[1]] = piece
+        self.pieces.append(piece)
+        if type_.lower() == type_:
+            self.black_pieces.append(piece)
+        else:
+            self.white_pieces.append(piece)
 
     def __getitem__(self, pos):
         if not 0 <= pos[0] <= 7 or not 0 <= pos[1] <= 7:
@@ -51,17 +184,6 @@ class Board(object):
     def is_empty(self, pos):
         return self[pos] is None
 
-    def __copy__(self):
-        return copy.deepcopy(self)
-    
-    def makeMove(self, move):
-	next_state = self.__copy__()
-        item = next_state.__getitem__(move[0])
-        next_state.__setitem__(move[1],item)
-	return next_state
-	
-    def heuristic(self):
-	return randint(-1, 10 ) 
 
     def generate(self):
         moves = []
@@ -72,221 +194,47 @@ class Board(object):
 
         return moves
 
-class Piece(object):
-    def __init__(self):
-        self.board = None
-        self.team = None
-        self.position = None
-        self.type = None
+    def remove_piece(self, piece):
+        pos = piece.position
+        self[pos] = None
 
-    def generate(self):
-        pass
+        self.pieces.remove(piece)
+        if piece.team == BLACK:
+            self.black_pieces.remove(piece)
+        else:
+            self.white_pieces.remove(piece)
 
-    def is_opponent(self, piece):
-        return piece is not None and piece.team != self.team
+    def win_pawncapture(self):
+        has_black_pawn = any([p.type == PAWN for p in self.black_pieces])
+        has_white_pawn = any([p.type == PAWN for p in self.white_pieces])
 
-class Pawn(Piece):
-    def __init__(self, board, team, position):
-        self.board = board
-        self.team = team
-        self.position = position
+        if not has_black_pawn:
+            return WHITE
 
-    def generate(self):
-        moves = []
-        my_row, my_col = self.position
+        if not has_white_pawn:
+            return BLACK
 
-        d = self.team
+        return NONE
 
-        # Movement to 1 forward
-        pos = (my_row + d*1, my_col)
-        if self.board.is_empty(pos):
-            moves.append(pos)
+    def win_pawnpromotion(self):
+        for p in self.white_pieces:
+            if p.type == PAWN and p.position[0] == 7:
+                return WHITE
 
-        # Normal capture to right
-        pos = (my_row + d*1, my_col+1)
-        piece = self.board[pos]
-        if self.is_opponent(piece):
-            moves.append(pos)
+        for p in self.black_pieces:
+            if p.type == PAWN and p.position[0] == 0:
+                return BLACK
 
-        # Normal capture to left
-        pos = (my_row + d*1, my_col-1)
-        piece = self.board[pos]
-        if self.is_opponent(piece):
-            moves.append(pos)
+        return NONE
 
-        return moves
+    def __copy__(self):
+        return copy.deepcopy(self)
 
-class Rook(Piece):
-    def __init__(self, board, team, position):
-        self.board = board
-        self.team = team
-        self.position = position
-        
-    def _col(self, dir_):
-        my_row, my_col = self.position
-        d = -1 if dir_ < 0 else 1
-        for col in xrange(1, abs(dir_)):
-            yield (my_row, my_col + d*col)
+    def makeMove(self, movement):
+        next_state = self.__copy__()
+        next_state.move(movement[0], movement[1])
+        return next_state
 
-    def _row(self, dir_):
-        my_row, my_col = self.position
+    def heuristic(self):
+        return randint(-100, 100 ) 
 
-        d = -1 if dir_ < 0 else 1
-        for row in xrange(1, abs(dir_)):
-            yield (my_row + d*row, my_col)
-
-    def _gen(self, moves, gen, idx):
-        for pos in gen(idx):
-            piece = self.board[pos]
-            
-            if piece is None: 
-                moves.append(pos)
-                continue
-            
-            elif piece.team != self.team:
-                moves.append(pos)
-
-            break
-
-    def generate(self):
-        moves = []
-
-        my_row, my_col = self.position
-        self._gen(moves, self._col, 8-my_col) # RIGHT
-        self._gen(moves, self._col, -my_col-1) # LEFT
-        self._gen(moves, self._row, 8-my_row) # TOP
-        self._gen(moves, self._row, -my_row-1) # BOTTOM
-
-        return moves
-
-class Bishop(Piece):
-    def __init__(self, board, team, position):
-        self.board = board
-        self.team = team
-        self.position = position
-
-    def _gen(self, moves, row_dir, col_dir):
-        my_row, my_col = self.position
-
-        for i in xrange(1, 8):
-            row = row_dir*i
-            col = col_dir*i
-            q_row, q_col = my_row+row, my_col+col
-
-            if not 0 <= q_row <= 7 or not 0 <= q_col <= 7:
-                break
-
-            piece = self.board[q_row, q_col]
-            if piece is not None:
-                if piece.team != self.team:
-                    moves.append((q_row, q_col))
-                break
-
-            moves.append((q_row, q_col))
-
-    def generate(self):
-        moves = []
-
-        self._gen(moves, row_dir=1, col_dir=1) # TOPRIGHT
-        self._gen(moves, row_dir=1, col_dir=-1) # TOPLEFT
-        self._gen(moves, row_dir=-1, col_dir=-1) # BOTTOMLEFT
-        self._gen(moves, row_dir=-1, col_dir=1) # BOTTOMRIGHT
-
-        return moves
-
-class Queen(Piece):
-    def __init__(self, board, team, position):
-        self.board = board
-        self.team = team
-        self.position = position
-
-    def _col(self, dir_):
-        my_row, my_col = self.position
-        
-        d = -1 if dir_ < 0 else 1
-        for col in xrange(1, abs(dir_)):
-            yield (my_row, my_col + d*col)
-
-    def _row(self, dir_):
-        my_row, my_col = self.position
-
-        d = -1 if dir_ < 0 else 1
-        for row in xrange(1, abs(dir_)):
-            yield (my_row + d*row, my_col)
-
-    def _gen_rook(self, moves, gen, idx):
-        for pos in gen(idx):
-            piece = self.board[pos]
-            
-            if piece is None: 
-                moves.append(pos)
-                continue
-            
-            elif piece.team != self.team:
-                moves.append(pos)
-
-            break
-
-    def _gen_bishop(self, moves, row_dir, col_dir):
-        my_row, my_col = self.position
-
-        for i in xrange(1, 8):
-            row = row_dir*i
-            col = col_dir*i
-            q_row, q_col = my_row+row, my_col+col
-
-            if not 0 <= q_row <= 7 or not 0 <= q_col <= 7:
-                break
-
-            piece = self.board[q_row, q_col]
-            if piece is not None:
-                if piece.team != self.team:
-                    moves.append((q_row, q_col))
-                break
-
-            moves.append((q_row, q_col))
-
-    def generate(self):
-        moves = []
-
-        my_row, my_col = self.position
-        self._gen_rook(moves, self._col, 8-my_col) # RIGHT
-        self._gen_rook(moves, self._col, -my_col-1) # LEFT
-        self._gen_rook(moves, self._row, 8-my_row) # TOP
-        self._gen_rook(moves, self._row, -my_row-1) # BOTTOM
-        self._gen_bishop(moves, row_dir=1, col_dir=1) # TOPRIGHT
-        self._gen_bishop(moves, row_dir=1, col_dir=-1) # TOPLEFT
-        self._gen_bishop(moves, row_dir=-1, col_dir=-1) # BOTTOMLEFT
-        self._gen_bishop(moves, row_dir=-1, col_dir=1) # BOTTOMRIGHT
-
-        return moves
-
-class Knight(Piece):
-    def __init__(self, board, team, position):
-        self.board = board
-        self.team = team
-        self.position = position
-
-    def _gen(self, moves, row, col):
-        if not 0 <= row <= 7 or not 0 <= col <= 7:
-            return
-
-        piece = self.board[(row, col)]
-        if piece is None or self.is_opponent(piece):
-            moves.append((row, col))
-
-    def generate(self):
-        moves = []
-        my_row, my_col = self.position
-
-        self._gen(moves, my_row+1, my_col+2)
-        self._gen(moves, my_row+1, my_col-2)
-        self._gen(moves, my_row-1, my_col+2)
-        self._gen(moves, my_row-1, my_col-2)
-        self._gen(moves, my_row+2, my_col+1)
-        self._gen(moves, my_row+2, my_col-1)
-        self._gen(moves, my_row-2, my_col+1)
-        self._gen(moves, my_row-2, my_col-1)
-
-        return moves
-#

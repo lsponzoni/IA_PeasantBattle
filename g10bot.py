@@ -1,6 +1,48 @@
 import sys
 from base_client import LiacBot
 from g10Board import Board
+from g10pieces import *
+
+MIN = 1
+MAX = 0
+def maxPlay(board, level):
+        M_INF = -10000
+        P_INF = 10000
+        return alphaBetaMaxMin(board, level, M_INF, P_INF)
+
+def maxMin(board, alfa, beta, depth):
+	maxMinWithCut(board, depth, alfa, beta, minMax)
+	
+
+def maxMinWithCut(board, depth, lim_inf, lim_sup, minMax):
+        if level == 0:
+		return board.heuristic()  
+	if board.gameEnded() != None:
+		return board.gameEnded()
+	if minMax == MAX :
+		bestMove = 
+		for move in board.generate():
+               		nextBoard = board.makeMove(move)
+			= alfabeta(board, level , alfa, beta, MIN)
+			
+	if minMax == MIN:
+		alfabeta(board, level - 1, alfa, beta, MAX)
+
+def MinMax(moves, board):
+	for move in moves:
+		board.makeMove(move[0], move[1]) 
+
+# :This is the line that theoretically
+# changes between both functions...
+# actually board takes care of that...        
+def searchBestMove(moves, board):
+        bestHeuristicValue = board.MIN_HEURISTIC
+        bestMove = moves[0]
+        for move in moves: 
+                utility = board.makeMove(move).heuristic()
+                if( bestHeuristicValue < utility):
+                        bestMove = move
+        return (bestMove, utility)
 #=====================================
 class G10Bot(LiacBot):
 	name = 'Bot do Grupo 10'
@@ -9,8 +51,8 @@ class G10Bot(LiacBot):
 	color = 0
 	
 	def select_move(self, moves, board):
-		# min max...
-		return moves[0]
+                return maxPlay(moves, board, 2)
+		
 	
 	def __init__(self, color, port):
 		super(G10Bot, self).__init__()
