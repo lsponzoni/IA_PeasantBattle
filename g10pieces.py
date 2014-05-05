@@ -6,6 +6,10 @@ PAWN = 'p'
 ROOK = 'r'
 BISHOP = 'b'
 
+WHITE = 1
+BLACK = -1
+NONE = 0
+
 class Piece(object):
     def __init__(self):
         self.board = None
@@ -22,23 +26,23 @@ class Piece(object):
     def generate(self):
         pass
 
-    def is_opponent(self, piece):
-        return piece is not None and piece.team != self.team
+    def is_opponent(self, piece): 
+	   return piece is not None and piece.team != self.team
 		
-	def evaluations():
-		return self.positioningEvaluation() + self.materialEvaluation()
+    def evaluations(self):
+	    pass
 	
-	def positioningEvaluation(self):
-		pass
+    def positioningEvaluation(self):
+	    pass
+    
+    def materialEvaluation(self):
+        pass
+
+    def defenseEvaluation(self):
+        pass
 		
-	def materialEvaluation(self):
-		pass
-	
-	def defenseEvaluation(self):
-		pass
-		
-	def supportEvaluation(self):
-		pass
+    def supportEvaluation(self):
+        pass
 
 class Pawn(Piece):
     def __init__(self, board, team, position):
@@ -114,28 +118,34 @@ class Pawn(Piece):
             return True
 
         return False
-
-	def positioningEvaluation(self):
-		row, col = self.position
-		ac = 0
-		if self.team == WHITE:
-			if row != 7:
-				ac = row*2;
-			else:
-				ac = 1000000
-		elif self.team == BLACK:
-			if row != 7:
-				ac = -(7-row)*2;
-			else:
-				ac = -1000000
 		
-		return ac
+    def positioningEvaluation(self):
+        row, col = self.position
+        ac = 0
+        if (self.team == WHITE):
+            if row != 7:
+                ac = row*2;
+            else:
+                ac = 1000000
+        else:
+            if row != 7:
+                ac = -(7-row)*2;
+            else:
+                ac = -1000000
 		
-	def materialEvaluation(self):
-		if self.team == WHITE:
-			return 1
-		else:
-			return -1
+        return ac
+		
+    def materialEvaluation(self):
+        ac = 0
+        if (self.team == WHITE):
+            ac = 1
+        else:
+            ac = -1
+            
+        return ac
+            
+    def evaluations(self):
+        return self.positioningEvaluation() + self.materialEvaluation()
 
 
 
@@ -218,18 +228,25 @@ class Rook(Piece):
 
         return True
 		
-	def positioningEvaluation(self):
-		i, j = self.position
-		if self.team == WHITE:
-			return 15 - i
-		else:
-			return -(15-(7-i))
+    def evaluations(self):
+        return self.positioningEvaluation() + self.materialEvaluation()
 		
-	def materialEvaluation(self):
-		if self.team == WHITE:
-			return 5
-		else:
-			return -5
+    def positioningEvaluation(self):
+        i, j = self.position
+        if self.team == WHITE:
+            ac = 15 - i
+        else:
+            ac = -(15-(7-i))
+            
+        return ac
+		
+    def materialEvaluation(self):
+        if self.team == WHITE:
+            ac = 5
+        else:
+            ac = -5
+        
+        return ac
 		
 
 class Bishop(Piece):
@@ -299,6 +316,9 @@ class Bishop(Piece):
 
         return True
 		
+	def evaluations(self):
+		return self.positioningEvaluation() + self.materialEvaluation()
+		
 	def positioningEvaluation(self):
 		i, j = self.position
 		ac = 0
@@ -351,8 +371,4 @@ class Bishop(Piece):
 		if self.team == WHITE:
 			return 3
 		else:
-			return -3
-        
-
-
-
+			return -3        
