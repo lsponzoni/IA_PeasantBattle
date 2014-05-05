@@ -28,7 +28,7 @@ class Piece(object):
 
     def is_opponent(self, piece): 
 	   return piece is not None and piece.team != self.team
-		
+       
     def evaluations(self):
 	    pass
 	
@@ -316,59 +316,59 @@ class Bishop(Piece):
 
         return True
 		
-	def evaluations(self):
-		return self.positioningEvaluation() + self.materialEvaluation()
+    def evaluations(self):
+        return self.positioningEvaluation() + self.materialEvaluation()
 		
-	def positioningEvaluation(self):
-		i, j = self.position
-		ac = 0
-		if (i < 3):
-			if (i < 2):
-				if (i < 1):
-					ac = 2
-				else:
-					ac = 4
-			else:
-				ac = 6
-				
-		elif (i > 4):
-			if (i > 5):
-				if (i > 6):
-					ac = 2
-				else:
-					ac = 4
-			else:
-				ac = 6
-		else:
-			ac = 8
-			
-		if (j < 3):
-			if (j < 2):
-				if (j < 1):
-					ac += 2
-				else:
-					ac += 4
-			else:
-				ac += 6
-				
-		elif (j > 4):
-			if (j > 5):
-				if (j > 6):
-					ac += 2
-				else:
-					ac += 4
-			else:
-				ac += 6
-		else: #inner square
-			ac += 8
-		
-		if self.team == WHITE:
-			return ac
-		else:
-			return -ac
+    def positioningEvaluation(self):
+        i, j = self.position
+        ac = 0
+        if (i < 3):
+            if (i < 2):
+                if (i < 1):
+                    ac = 2
+                else:
+                    ac = 4
+            else:
+                ac = 6
+                
+        elif (i > 4):
+            if (i > 5):
+                if (i > 6):
+                    ac = 2
+                else:
+                    ac = 4
+            else:
+                ac = 6
+        else:
+            ac = 8
+            
+        if (j < 3):
+            if (j < 2):
+                if (j < 1):
+                    ac += 2
+                else:
+                    ac += 4
+            else:
+                ac += 6
+                
+        elif (j > 4):
+            if (j > 5):
+                if (j > 6):
+                    ac += 2
+                else:
+                    ac += 4
+            else:
+                ac += 6
+        else: #inner square
+            ac += 8
+        
+        if self.team == WHITE:
+            return ac
+        else:
+            return -ac
 
-	def materialEvaluation(self):
-		if self.team == WHITE:
-			return 3
-		else:
-			return -3        
+    def materialEvaluation(self):
+        if self.team == WHITE:
+            return 3
+        else:
+            return -3        
