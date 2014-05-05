@@ -321,49 +321,10 @@ class Bishop(Piece):
         return self.positioningEvaluation() + self.materialEvaluation() + self.freedomEvaluation()
 		
     def positioningEvaluation(self):
+	    PesosI = [2,4,6,8,8,6,4,2]
+	    PesosJ = [2,4,5,8,8,5,4,2]
         i, j = self.position
-        ac = 0
-        if (i < 3):
-            if (i < 2):
-                if (i < 1):
-                    ac = 2
-                else:
-                    ac = 4
-            else:
-                ac = 6
-                
-        elif (i > 4):
-            if (i > 5):
-                if (i > 6):
-                    ac = 2
-                else:
-                    ac = 4
-            else:
-                ac = 6
-        else:
-            ac = 8
-            
-        if (j < 3):
-            if (j < 2):
-                if (j < 1):
-                    ac += 2
-                else:
-                    ac += 4
-            else:
-                ac += 6
-                
-        elif (j > 4):
-            if (j > 5):
-                if (j > 6):
-                    ac += 2
-                else:
-                    ac += 4
-            else:
-                ac += 6
-        else: #inner square
-            ac += 8
-        
-        return ac
+	    return PesosI[i] + PesosJ[j]
 
     def materialEvaluation(self):
         return 21
