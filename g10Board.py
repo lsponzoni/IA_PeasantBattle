@@ -239,5 +239,12 @@ class Board(object):
 
     
     def heuristic(self):
-        return len(self.black_pieces) - len(self.white_pieces) 
-
+		ac = 0
+		for	piece in self.white_pieces:
+			ac += piece.evaluations()
+		for piece in self.black_pieces:
+			ac -= piece.evaluations()
+		if self.team == WHITE
+			return ac
+		else
+			return -ac

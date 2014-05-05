@@ -24,6 +24,9 @@ class Piece(object):
 
     def is_opponent(self, piece):
         return piece is not None and piece.team != self.team
+		
+	def evaluations()
+		return self.positioningEvaluation() + self.materialEvaluation()
 	
 	def positioningEvaluation(self):
 		pass
