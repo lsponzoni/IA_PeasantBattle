@@ -26,15 +26,21 @@ class Board(object):
         self.black_pieces = []
         self.white_pieces = []
 
-        self.winner = None
-        self.draw = False
+        
+        self.winner = state['winner'] 
+        self.draw = state['draw']        
         self.team = state['who_moves']
         self.other_team = WHITE if (self.team == BLACK) else BLACK
-        c = state['board']
         self.who_moves = self.team
+        self.enpassant = state['enpassant']
+
+
+        
+        c = state['board']
         i = 0
 
         self.win_methods = [self.win_pawncapture, self.win_pawnpromotion]
+        
         for row in xrange(7, -1, -1):
             for col in xrange(0, 8):
                 if c[i] != '.':
@@ -115,10 +121,7 @@ class Board(object):
 
         # Verify if it is a capture (to remove from lists)
         if to_piece is not None:
-            self.nocapture_moves = 0
             self.remove_piece(to_piece)
-        else:
-            self.nocapture_moves += 1
 
         # Clear enpassant state
         self.enpassant = None
@@ -149,8 +152,6 @@ class Board(object):
         self[from_pos] = None
         from_piece.move_to(to_pos)#position = to_pos
 
-        # Change time state
-        self.move_time = config['max_move_time']
 
         # Verify winning
         self._verify_win()
@@ -232,6 +233,9 @@ class Board(object):
 
         return NONE
 
+    def is_enpassant(self, pos):
+        enp = self.enpassant
+        return enp and enp[0] == pos[0] and enp[1] == pos[1]
 
     def __copy__(self):
         return copy.deepcopy(self)

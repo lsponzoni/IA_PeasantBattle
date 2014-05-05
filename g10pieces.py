@@ -36,17 +36,19 @@ class Pawn(Piece):
     def generate(self):
         moves = []
         my_row, my_col = self.position
-        
-	# Movement to 1 forward
+
+	d = self.team
+
+	# Movement to 1 :forward
         pos = (my_row + d*1, my_col)
         if self.board.is_empty(pos):
-            moves.append(pos)
-        
-        # Movement to 2 forward
-        if not self._has_moved:
-            pos = (my_row + d*2, my_col)
-            if self.board.is_empty(pos):
-                moves.append(pos)
+		moves.append(pos)
+	
+	# Movement to 2 forward
+		if not self._has_moved:
+			pos = (my_row + d*2, my_col)
+			if self.board.is_empty(pos):
+                		moves.append(pos)
 
         # Normal capture to right
         pos = (my_row + d*1, my_col+1)

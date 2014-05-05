@@ -9,7 +9,8 @@ MAX = 0
 def maxPlay(board, level):
         M_INF = -10000
         P_INF = 10000
-        return maxMinWithPrune(board, level, M_INF, P_INF, MAX)
+        move, i = maxMinWithPrune(board, level, M_INF, P_INF, MAX)
+ 	return move	
 
 def maxMinWithPrune(board, depth, lim_inf, lim_sup, minMax):
 	if depth == 0 or board.winner != None or board.draw:
@@ -20,24 +21,24 @@ def maxMinWithPrune(board, depth, lim_inf, lim_sup, minMax):
 		best_chance = lim_inf
 		for movement in possible_movements:
                		nextBoard = board.makeMove(movement)
-			_, chance  = maxMinWithPrune(nextBoard, depth - 1, best_chance, lim_sup, MIN)
+			s, chance  = maxMinWithPrune(nextBoard, depth - 1, best_chance, lim_sup, MIN)
 			if chance > best_chance:
 				best_move = movement
 				best_chance = chance
 			if best_chance >= lim_sup:
 				break
-		return (best_move, best_chance)
+		return best_move, best_chance
 	if minMax == MIN:
 		best_chance = lim_sup
 		for movement in possible_movements:
                		nextBoard = board.makeMove(movement)
-			_, chance  = maxMinWithPrune(nextBoard, depth - 1, lim_inf, best_chance, MIN)
+			s, chance  = maxMinWithPrune(nextBoard, depth - 1, lim_inf, best_chance, MIN)
 			if chance < best_chance:
 				best_move = movement
 				best_chance = chance
 			if best_chance <= lim_inf:
 				break
-		return (best_move, best_chance)
+		return best_move, best_chance
 #=====================================
 class G10Bot(LiacBot):
 	name = 'Bot do Grupo 10'
@@ -52,12 +53,11 @@ class G10Bot(LiacBot):
 		self.color = color
 
 	def select_move(self, board):
-		move, cost = maxPlay(board, 12)
-		return move
+		return maxPlay(board, 12)
 
 	def on_move(self, state):
 		board =	Board(state)
-		move, cost = self.select_move(board)
+		move = self.select_move(board)
 		self.send_move(move[0], move[1])
 		
 	def on_game_over(self, state):
