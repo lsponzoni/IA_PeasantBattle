@@ -27,7 +27,7 @@ class Piece(object):
         pass
 
     def is_opponent(self, piece): 
-	   return piece is not None and piece.team != self.team
+	    return piece is not None and piece.team != self.team
        
     def evaluations(self):
 	    pass
@@ -66,7 +66,7 @@ class Pawn(Piece):
         moves = []
         my_row, my_col = self.position
 
-	d = self.team
+	    d = self.team
 
 	# Movement to 1 :forward
         pos = (my_row + d*1, my_col)
@@ -112,18 +112,12 @@ class Pawn(Piece):
         valid_enpassant = self.board.enpassant is not None and \
                           pos[0] == self.board.enpassant[0] and \
                           pos[1] == self.board.enpassant[1]  
-        opponent_piece = piece is not None and piece.team != self.team
+        opponent_piece = self.is_opponent(piece)
 
         movement = (d_col == 0) and (piece is None) and \
                    (d_row == 1 or (d_row == 2 and not self._has_moved))
         capture = capture_move and (valid_enpassant or opponent_piece)
-        # ------------------------------------------------
-
-        # print 'capture_move', capture_move
-        # print 'valid_enpassant', valid_enpassant
-        # print 'opponent_piece', opponent_piece
-        # print 'movement', movement
-        # print 'capture', capture
+        
         if movement or capture:
             return True
 
@@ -146,8 +140,7 @@ class Pawn(Piece):
         return ac
 		
     def materialEvaluation(self):
-        ac = 5
-        return ac
+        return 5
 
     def evaluations(self):
         return self.positioningEvaluation() + self.materialEvaluation() + self.freedomEvaluation()
@@ -216,7 +209,7 @@ class Rook(Piece):
         if not(d_row or d_col):
             return False
 
-        if piece is not None and piece.team == self.team:
+        if self.is_opponent(piece):
             return False
 
         row_direction = -1 if d_row < 0 else 1
