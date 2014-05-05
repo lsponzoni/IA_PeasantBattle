@@ -65,8 +65,7 @@ class Pawn(Piece):
     def generate(self):
         moves = []
         my_row, my_col = self.position
-
-	    d = self.team
+        d = self.team
 
 	# Movement to 1 :forward
         pos = (my_row + d*1, my_col)
@@ -314,10 +313,9 @@ class Bishop(Piece):
         return self.positioningEvaluation() + self.materialEvaluation() + self.freedomEvaluation()
 		
     def positioningEvaluation(self):
-	    PesosI = [2,4,6,8,8,6,4,2]
-	    PesosJ = [2,4,5,8,8,5,4,2]
+        Pesos = [2,4,5,8,8,6,4,2]
         i, j = self.position
-	    return PesosI[i] + PesosJ[j]
+        return Pesos[i] + Pesos[j]
 
     def materialEvaluation(self):
         return 21
