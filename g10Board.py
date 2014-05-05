@@ -39,8 +39,7 @@ class Board(object):
         c = state['board']
         i = 0
 
-        self.win_methods = [self.win_pawncapture, self.win_pawnpromotion]
-        
+        self.win_methods = [self.win_pawncapture, self.win_pawnpromotion] 
         for row in xrange(7, -1, -1):
             for col in xrange(0, 8):
                 if c[i] != '.':
@@ -84,11 +83,6 @@ class Board(object):
                 self.winner = r
                 return
 
-    def _verify_tie(self):
-        for tie in self.tie_methods:
-            if tie(self):
-                self.draw = True
-                return
 
     def raw_move(self, from_pos, to_pos):
         from_piece = self[from_pos]
@@ -155,9 +149,7 @@ class Board(object):
 
         # Verify winning
         self._verify_win()
-        if not self.winner:
-            self._verify_tie()
-
+    
     def set_board(self, c):
         i = 0
         for row in xrange(7, -1, -1):
