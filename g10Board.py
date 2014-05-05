@@ -244,7 +244,7 @@ class Board(object):
 			ac += piece.evaluations()
 		for piece in self.black_pieces:
 			ac -= piece.evaluations()
-		if self.team == WHITE
+		if (self.team == WHITE)
 			return ac
 		else
 			return -ac
