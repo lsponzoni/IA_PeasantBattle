@@ -3,15 +3,19 @@ from base_client import LiacBot
 from g10Board import Board
 from g10pieces import *
 
+WHITE = 1
+BLACK = -1
+
 def complemento(cor):
 	return - cor
 
 def negaMaxMinWithPrune(board, depth, lim_inf, lim_sup, color):
-	if depth == 0 or board.generate() == None:
-		return None, board.heuristic() 
+	moves = board.generate() 
+	if depth == 0 or moves == None:
+		return None, board.heuristic(color) 
 	best_move = None
 	best_chance = lim_inf
-	for movement in board.generate():
+	for movement in moves:
 		nextBoard = board.makeMove(movement)
 		compl = complemento(color)
 		predicao, mchance = negaMaxMinWithPrune(nextBoard, 
@@ -29,9 +33,7 @@ def negaMaxMinWithPrune(board, depth, lim_inf, lim_sup, color):
 class G10Bot(LiacBot):
 	name = 'Bot do Grupo 10'
 	ip = '127.0.0.1'
-	port = 50100
-	color = 0
-	depth = 3 	
+	depth =  3
 
 	def __init__(self, color, port):
 		super(G10Bot, self).__init__()
@@ -55,12 +57,12 @@ class G10Bot(LiacBot):
 		print 'Game Over'
 #======================================
 if __name__ == '__main__':
-    color = 0
+    color = WHITE 
     port = 50100
 
     if len(sys.argv) > 1:
     	if sys.argv[1] == 'black':
-    		color = 1
+    		color = BLACK
            	port = 50200
     bot = G10Bot(color, port)
     bot.port = port

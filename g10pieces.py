@@ -123,27 +123,22 @@ class Pawn(Piece):
         row, col = self.position
         ac = 0
         if (self.team == WHITE):
-            if row != 7:
+	    if row != 7:
                 ac = row*2;
             else:
                 ac = 1000000
         else:
             if row != 7:
-                ac = -(7-row)*2;
+                ac = (7-row)*2;
             else:
-                ac = -1000000
+                ac = 1000000
 		
         return ac
 		
     def materialEvaluation(self):
-        ac = 0
-        if (self.team == WHITE):
-            ac = 1
-        else:
-            ac = -1
-            
+        ac = 1
         return ac
-            
+
     def evaluations(self):
         return self.positioningEvaluation() + self.materialEvaluation()
 
@@ -236,16 +231,12 @@ class Rook(Piece):
         if self.team == WHITE:
             ac = 15 - i
         else:
-            ac = -(15-(7-i))
+            ac = 15-(7-i)
             
         return ac
 		
     def materialEvaluation(self):
-        if self.team == WHITE:
-            ac = 5
-        else:
-            ac = -5
-        
+        ac = 5
         return ac
 		
 
@@ -362,13 +353,7 @@ class Bishop(Piece):
         else: #inner square
             ac += 8
         
-        if self.team == WHITE:
-            return ac
-        else:
-            return -ac
+        return ac
 
     def materialEvaluation(self):
-        if self.team == WHITE:
-            return 3
-        else:
-            return -3        
+        return 10

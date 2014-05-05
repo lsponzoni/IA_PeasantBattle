@@ -238,13 +238,13 @@ class Board(object):
         return next_state
 
     
-    def heuristic(self):
+    def heuristic(self, color):
         ac = 0
-        for	piece in self.white_pieces:
+        for piece in self.white_pieces:
             ac += piece.evaluations()
         for piece in self.black_pieces:
             ac -= piece.evaluations()
-        if self.team == WHITE:
+        if color == WHITE:
             return ac
         else:
             return -ac
