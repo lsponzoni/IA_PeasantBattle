@@ -24,6 +24,18 @@ class Piece(object):
 
     def is_opponent(self, piece):
         return piece is not None and piece.team != self.team
+	
+	def positioningEvaluation(self):
+		pass
+		
+	def materialEvaluation(self):
+		pass
+	
+	def defenseEvaluation(self):
+		pass
+		
+	def supportEvaluation(self):
+		pass
 
 class Pawn(Piece):
     def __init__(self, board, team, position):
@@ -100,6 +112,27 @@ class Pawn(Piece):
 
         return False
 
+	def positioningEvaluation(self):
+		row, col = self.position
+		ac = 0
+		if self.team == WHITE
+			if row != 7
+				ac = row*2;
+			else 
+				ac = 1000000
+		elif self.team == BLACK
+			if row != 7
+				ac = -(7-row)*2;
+			else 
+				ac = -1000000
+		
+		return ac
+		
+	def materialEvaluation(self):
+		if self.team == WHITE
+			return 1
+		else 
+			return -1
 
 
 
@@ -181,6 +214,20 @@ class Rook(Piece):
                 return False
 
         return True
+		
+	def positioningEvaluation(self):
+		i, j = self.position
+		if self.team == WHITE
+			return 15 - i
+		else
+			return -(15-(7-i))
+		
+	def materialEvaluation(self):
+		if self.team == WHITE
+			return 5
+		else 
+			return -5
+		
 
 class Bishop(Piece):
     def __init__(self, board, team, position):
@@ -248,6 +295,60 @@ class Bishop(Piece):
                 return False
 
         return True
+		
+	def positioningEvaluation(self):
+		i, j = self.position
+		ac = 0
+		if (i < 3)
+			if (i < 2)
+				if (i < 1)
+					ac = 2
+				else
+					ac = 4
+			else
+				ac = 6
+				
+		elif (i > 4)
+			if (i > 5)
+				if (i > 6)
+					ac = 2
+				else
+					ac = 4
+			else
+				ac = 6
+		else 
+			ac = 8
+			
+		if (j < 3)
+			if (j < 2)
+				if (j < 1)
+					ac += 2
+				else
+					ac += 4
+			else
+				ac += 6
+				
+		elif (j > 4)
+			if (j > 5)
+				if (j > 6)
+					ac += 2
+				else
+					ac += 4
+			else
+				ac += 6
+		else #inner square
+			ac += 8
+		
+		if self.team == WHITE
+			return ac
+		else
+			return -ac
+
+	def materialEvaluation(self):
+		if self.team == WHITE
+			return 3
+		else 
+			return -3
         
 
 
