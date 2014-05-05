@@ -1,4 +1,4 @@
-
+import numbers
 
 __all__ = ['Pawn', 'Rook', 'Bishop']
 
@@ -37,6 +37,12 @@ class Piece(object):
     
     def materialEvaluation(self):
         pass
+        
+    def freedomEvaluation(self): #'murica
+        if isinstance(self.generate, numbers.Number):
+            return len(self.generate)*3
+        else:
+            return 0
 
     def defenseEvaluation(self):
         pass
@@ -49,8 +55,12 @@ class Pawn(Piece):
         self.board = board
         self.team = team
         self.position = position
-	self.type = PAWN
-        self._has_moved = False
+	self.type = PAWN        
+        if self.position[0] == 1:
+            self._has_moved = False
+        else:
+            self._has_moved = True
+        
         
     def generate(self):
         moves = []
@@ -136,11 +146,11 @@ class Pawn(Piece):
         return ac
 		
     def materialEvaluation(self):
-        ac = 1
+        ac = 5
         return ac
 
     def evaluations(self):
-        return self.positioningEvaluation() + self.materialEvaluation()
+        return self.positioningEvaluation() + self.materialEvaluation() + self.freedomEvaluation()
 
 
 
@@ -224,7 +234,7 @@ class Rook(Piece):
         return True
 		
     def evaluations(self):
-        return self.positioningEvaluation() + self.materialEvaluation()
+        return self.positioningEvaluation() + self.materialEvaluation() + self.freedomEvaluation()
 		
     def positioningEvaluation(self):
         i, j = self.position
@@ -236,7 +246,7 @@ class Rook(Piece):
         return ac
 		
     def materialEvaluation(self):
-        ac = 5
+        ac = 35
         return ac
 		
 
@@ -308,7 +318,7 @@ class Bishop(Piece):
         return True
 		
     def evaluations(self):
-        return self.positioningEvaluation() + self.materialEvaluation()
+        return self.positioningEvaluation() + self.materialEvaluation() + self.freedomEvaluation()
 		
     def positioningEvaluation(self):
         i, j = self.position
@@ -356,4 +366,4 @@ class Bishop(Piece):
         return ac
 
     def materialEvaluation(self):
-        return 10
+        return 21
