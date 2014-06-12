@@ -19,7 +19,7 @@ def negaMaxMinWithPrune(board, depth, lim_inf, lim_sup, color):
         nextBoard = board.makeMove(movement)
         compl = complemento(color)
         predicao, mchance = negaMaxMinWithPrune(nextBoard, 
-                depth -1, -lim_sup, -lim_inf, compl )
+                depth -1, -lim_sup, -best_chance, compl )
         chance = - mchance	
         if chance > best_chance:
             best_move = movement
