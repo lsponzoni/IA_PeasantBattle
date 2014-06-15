@@ -1,21 +1,17 @@
 import numbers
-
+from g10color import (white,black)
 __all__ = ['Pawn', 'Rook', 'Bishop']
 
 PAWN = 'p'
 ROOK = 'r'
 BISHOP = 'b'
 
-WHITE = 1
-BLACK = -1
-NONE = 0
-
 class Piece(object):
     def __init__(self):
         self.board = None
         self.team = None
         self.position = None
-	self.type = None
+        self.kind = None
 
     def is_valid_move(self, pos):
         pass
@@ -27,56 +23,62 @@ class Piece(object):
         pass
 
     def is_opponent(self, piece): 
-	    return piece is not None and piece.team != self.team
+        return piece is not None and piece.team != self.team
        
     def evaluations(self):
-	    pass
-	
+        pass
+
     def positioningEvaluation(self):
-	    pass
+        pass
     
     def materialEvaluation(self):
         pass
         
-    def freedomEvaluation(self): #'murica
+    def freedomEvaluation(self): #'murica # Parece caro.
         if isinstance(self.generate, numbers.Number):
-            return len(self.generate)*3
+            return len(self.generate) * 3
         else:
             return 0
 
     def defenseEvaluation(self):
         pass
-		
+
     def supportEvaluation(self):
         pass
+
+    def is_white(self):
+        return self.team == white()
+
+    def is_black(self):
+        return self.team != white()
 
 class Pawn(Piece):
     def __init__(self, board, team, position):
         self.board = board
         self.team = team
         self.position = position
-	self.type = PAWN        
-        if self.position[0] == 1:
-            self._has_moved = False
+        self.kind = PAWN
+        if self.is_white():
+            self._has_moved = self.position[0] != 1
         else:
-            self._has_moved = True
-        
-        
+            self._has_moved = self.position[0] != 6
+
     def generate(self):
         moves = []
         my_row, my_col = self.position
+
         d = self.team
 
-	# Movement to 1 :forward
+	    # Movement to 1 :forward
         pos = (my_row + d*1, my_col)
         if self.board.is_empty(pos):
-		moves.append(pos)
-	
-	# Movement to 2 forward
-		if not self._has_moved:
-			pos = (my_row + d*2, my_col)
-			if self.board.is_empty(pos):
-                		moves.append(pos)
+            moves.append(pos)
+
+    	# Movement to 2 forward
+        if not self._has_moved:
+            pos = (my_row + d*2, my_col)
+            if self.board.is_empty(pos):
+                moves.append(pos)
 
         # Normal capture to right
         pos = (my_row + d*1, my_col+1)
@@ -92,41 +94,11 @@ class Pawn(Piece):
 
         return moves
 
-    def move_to(self, pos):
-        self._has_moved = True
-        super(Pawn, self).move_to(pos)
-
-    def is_valid_move(self, pos):
-        query_row, query_col = pos
-        my_row, my_col = self.position
-        
-        piece = self.board[pos]
-
-        # multiply to self.team in order to ignore the direction
-        d_row = self.team*(query_row - my_row)
-        d_col = (query_col - my_col)
-
-        # some conditions to verify if is a valid movement
-        capture_move = abs(d_col) == 1 and d_row == 1
-        valid_enpassant = self.board.enpassant is not None and \
-                          pos[0] == self.board.enpassant[0] and \
-                          pos[1] == self.board.enpassant[1]  
-        opponent_piece = self.is_opponent(piece)
-
-        movement = (d_col == 0) and (piece is None) and \
-                   (d_row == 1 or (d_row == 2 and not self._has_moved))
-        capture = capture_move and (valid_enpassant or opponent_piece)
-        
-        if movement or capture:
-            return True
-
-        return False
-		
     def positioningEvaluation(self):
         row, col = self.position
         ac = 0
-        if (self.team == WHITE):
-	    if row != 7:
+        if self.is_white():
+            if row != 7:
                 ac = row*2;
             else:
                 ac = 1000000
@@ -135,14 +107,19 @@ class Pawn(Piece):
                 ac = (7-row)*2;
             else:
                 ac = 1000000
-		
         return ac
-		
+
     def materialEvaluation(self):
         return 5
 
     def evaluations(self):
-        return self.positioningEvaluation() + self.materialEvaluation() + self.freedomEvaluation()
+        return self.positioningEvaluation() +\
+                self.materialEvaluation() +\
+                self.freedomEvaluation()
+
+    def move_to(self, pos):
+        self._has_moved = True
+        super(Pawn, self).move_to(pos)
 
 
 
@@ -152,8 +129,8 @@ class Rook(Piece):
         self.board = board
         self.team = team
         self.position = position
-	self.type = ROOK
-	
+        self.kind = ROOK
+
     def _col(self, dir_):
         my_row, my_col = self.position
         d = (-1 if dir_ < 0 else 1)
@@ -166,17 +143,15 @@ class Rook(Piece):
         d = (-1 if dir_ < 0 else 1)
         for row in xrange(1, abs(dir_)):
             yield (my_row + d*row, my_col)
-            
 
-            
     def _gen(self, moves, gen, idx):
         for pos in gen(idx):
             piece = self.board[pos]
-            
-            if piece is None: 
+
+            if piece is None:
                 moves.append(pos)
                 continue
-            
+
             elif piece.team != self.team:
                 moves.append(pos)
 
@@ -192,45 +167,15 @@ class Rook(Piece):
         self._gen(moves, self._row, -my_row-1) # BOTTOM
 
         return moves
-        
-    def is_valid_move(self, pos):
-        query_row, query_col = pos
-        my_row, my_col = self.position
-        
-        d_row = (query_row - my_row)
-        d_col = (query_col - my_col)
 
-        piece = self.board[pos]
-
-        if d_row and d_col:
-            return False
-
-        if not(d_row or d_col):
-            return False
-
-        if self.is_opponent(piece):
-            return False
-
-        row_direction = -1 if d_row < 0 else 1
-        for row in xrange(1, abs(d_row)):
-            piece = self.board[(my_row+row_direction*row, my_col)]
-            if piece is not None:
-                return False
-
-        col_direction = -1 if d_col < 0 else 1
-        for col in xrange(1, abs(d_col)):
-            piece = self.board[(my_row, my_col+col_direction*col)]
-            if piece is not None:
-                return False
-
-        return True
-		
     def evaluations(self):
-        return self.positioningEvaluation() + self.materialEvaluation() + self.freedomEvaluation()
-		
+        return self.positioningEvaluation() +\
+                self.materialEvaluation() +\
+                self.freedomEvaluation()
+
     def positioningEvaluation(self):
         i, j = self.position
-        if self.team == WHITE:
+        if self.is_white():
             ac = 15 - i
         else:
             ac = 15-(7-i)
@@ -240,14 +185,13 @@ class Rook(Piece):
     def materialEvaluation(self):
         ac = 35
         return ac
-		
 
 class Bishop(Piece):
     def __init__(self, board, team, position):
         self.board = board
         self.team = team
         self.position = position
-        self.type = BISHOP
+        self.kind = BISHOP
 
         
     def _gen(self, moves, row_dir, col_dir):        
@@ -279,41 +223,13 @@ class Bishop(Piece):
 
         return moves
 
-    def is_valid_move(self, pos):
-        query_row, query_col = pos
-        my_row, my_col = self.position
-
-        d_row = (query_row - my_row)
-        d_col = (query_col - my_col)
-
-        piece = self.board[pos]
-
-        if abs(d_row) != abs(d_col):
-            return False
-
-        if not(d_row or d_col):
-            return False
-
-        if piece is not None and piece.team == self.team:
-            return False
-
-        vertical_direction = 1 if d_row > 0 else -1
-        horizontal_direction = 1 if d_col > 0 else -1
-        for i in xrange(1, abs(d_row)):
-            row = vertical_direction*i
-            col = horizontal_direction*i
-
-            piece = self.board[(my_row+row, my_col+col)]
-            if piece is not None:
-                return False
-
-        return True
-		
     def evaluations(self):
-        return self.positioningEvaluation() + self.materialEvaluation() + self.freedomEvaluation()
+        return self.positioningEvaluation() +\
+                self.materialEvaluation() +\
+                self.freedomEvaluation()
 		
     def positioningEvaluation(self):
-        Pesos = [2,4,5,8,8,6,4,2]
+        Pesos = [2,4,5,7,7,6,4,2]
         i, j = self.position
         return Pesos[i] + Pesos[j]
 

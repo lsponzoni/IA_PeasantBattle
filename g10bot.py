@@ -1,40 +1,42 @@
 import sys
 from base_client import LiacBot
-from g10Board import Board
-from g10pieces import *
+from g10Board import (Board)
+from g10color import (white, black)
+from random import choice
 
-WHITE = 1
-BLACK = -1
+M_INF = -10000
+P_INF = 10000
 
-def complemento(cor):
-    return - cor
-
-def negaMaxMinWithPrune(board, depth, lim_inf, lim_sup, color):
-    moves = board.generate() 
-    if depth == 0 or moves == None:
-        return None, board.heuristic(color) 
-    best_move = None
+def nega_max_with_prune(board, depth, lim_inf, lim_sup):
+    moves = board.generate()
+    print "Of %s" % moves
+    if moves == [] or depth == 0:
+        h = board.heuristic()
+        print "Give me money pls:>> %s" % h
+        return None, h 
+    best_move = choice(moves)
+    print "CHOOSE Any guy %s" % best_move
     best_chance = lim_inf
     for movement in moves:
+        if best_chance >= lim_sup:
+            print "PREMATURO%s" %(depth) 
+            break
         nextBoard = board.makeMove(movement)
-        compl = complemento(color)
-        predicao, mchance = negaMaxMinWithPrune(nextBoard, 
-                depth -1, -lim_sup, -best_chance, compl )
-        chance = - mchance	
+        _, mchance = nega_max_with_prune(nextBoard,
+                 depth - 1, -lim_sup, -best_chance)
+        chance = - mchance
         if chance > best_chance:
+            print "What is wrong"
             best_move = movement
             best_chance = chance
-        if lim_inf >= lim_sup:
-            break
-
-
+        
     return best_move, best_chance
 
 #=====================================
 class G10Bot(LiacBot):
     name = 'Bot do Grupo 10'
     ip = '127.0.0.1'
-    depth =  2
+    depth =  1
 
     def __init__(self, color, port):
         super(G10Bot, self).__init__()
@@ -42,27 +44,26 @@ class G10Bot(LiacBot):
         self.color = color
 
     def select_move(self, board):
-        M_INF = -10000
-        P_INF = 10000
-        move, ignore = negaMaxMinWithPrune(board, self.depth,M_INF, P_INF,self.color)
+        move, _ = nega_max_with_prune(board, self.depth, 
+                M_INF, P_INF)
         return move	
 
     def on_move(self, state):
         board =	Board(state)
         move = self.select_move(board)
         self.send_move(move[0], move[1])
-        print move
-        
+        print "Move %s" % move
+
     def on_game_over(self, state):
         print 'Game Over'
 #======================================
 if __name__ == '__main__':
-    color = WHITE 
+    color = white() 
     port = 50100
 
     if len(sys.argv) > 1:
         if sys.argv[1] == 'black':
-            color = BLACK
+            color = black()
             port = 50200
     bot = G10Bot(color, port)
     bot.port = port
