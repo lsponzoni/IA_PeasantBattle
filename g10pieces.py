@@ -55,12 +55,18 @@ class Pawn(Piece):
         self.board = board
         self.team = team
         self.position = position
-	self.type = PAWN        
-        if self.position[0] == 1:
-            self._has_moved = False
-        else:
-            self._has_moved = True
+	self.type = PAWN     
+        if self.team == WHITE:
+            if self.position[0] == 1:
+                self._has_moved = False
+            else:
+                self._has_moved = True
         
+        if self.team == BLACK:
+            if self.position[0] == 6:
+                self._has_moved = False
+            else:
+                self._has_moved = True
         
     def generate(self):
         moves = []
@@ -126,12 +132,12 @@ class Pawn(Piece):
         row, col = self.position
         ac = 0
         if (self.team == WHITE):
-	    if row != 7:
+            if row != 7:
                 ac = row*2;
             else:
                 ac = 1000000
         else:
-            if row != 7:
+            if row != 0:
                 ac = (7-row)*2;
             else:
                 ac = 1000000

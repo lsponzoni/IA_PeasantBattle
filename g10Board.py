@@ -243,7 +243,7 @@ class Board(object):
         for piece in self.white_pieces:
             ac += piece.evaluations()
         for piece in self.black_pieces:
-            ac -= piece.evaluations()
+            ac += piece.evaluations()
         if color == WHITE:
             return ac
         else:
