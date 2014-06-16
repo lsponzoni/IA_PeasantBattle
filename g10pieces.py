@@ -68,7 +68,7 @@ class Pawn(Piece):
         else:
             self._has_moved = self.position[0] != 6
 
-   def generate(self):
+    def generate(self):
         moves = []
         my_row, my_col = self.position
 
@@ -104,14 +104,10 @@ class Pawn(Piece):
     def positioningEvaluation(self):
         row, col = self.position
         ac = 0
-<<<<<<< HEAD
         if self.is_white():
-=======
-        if (self.team == WHITE):
->>>>>>> 81a4a4bc2a2ac1e2fb225ff1cd73742bceb561f7
-            if row != 7:
+           if row != 7:
                 ac = row*2;
-            else:
+           else:
                 ac = 1000000
         else:
             if row != 0:
