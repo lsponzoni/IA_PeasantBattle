@@ -16,10 +16,9 @@ def nega_max_with_prune(board, depth, lim_inf, lim_sup):
             break
 
         nextBoard = board.makeMove(movement)
-        mchance = justNegamaxWork(nextBoard, depth - 1,
+        chance = - justNegamaxWork(nextBoard, depth - 1,
                 -lim_sup, -best_chance)
 
-        chance = - mchance
         if chance > best_chance:
             best_move = movement
             best_chance = chance
