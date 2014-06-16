@@ -105,9 +105,9 @@ class Pawn(Piece):
         row, col = self.position
         ac = 0
         if self.is_white():
-           if row != 7:
+            if row != 7:
                 ac = row*2;
-           else:
+            else:
                 ac = 1000000
         else:
             if row != 0:
@@ -186,9 +186,8 @@ class Rook(Piece):
             ac = 15 - i
         else:
             ac = 15-(7-i)
-            
         return ac
-		
+
     def materialEvaluation(self):
         ac = 35
         return ac
@@ -200,7 +199,6 @@ class Bishop(Piece):
         self.position = position
         self.kind = BISHOP
 
-        
     def _gen(self, moves, row_dir, col_dir):        
         my_row, my_col = self.position
 
@@ -234,9 +232,9 @@ class Bishop(Piece):
         return self.positioningEvaluation() +\
                 self.materialEvaluation() +\
                 self.freedomEvaluation()
-		
+
     def positioningEvaluation(self):
-        Pesos = [2,4,5,7,7,6,4,2]
+        Pesos = [2, 4, 5, 7, 7, 6, 4, 2]
         i, j = self.position
         return Pesos[i] + Pesos[j]
 
