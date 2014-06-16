@@ -6,7 +6,6 @@ from base_client import LiacBot
 from g10pieces import (Piece, Pawn, Rook, Bishop)
 from g10color import (white, black, complemento)
 
-
 PIECES = {
         'r': Rook,
         'p': Pawn,
@@ -55,6 +54,12 @@ class Board(object):
         else:
             self.white_pieces.append(piece)
 
+    def makeMove(self, movement):
+        next_state = self.__copy__()
+        next_state.move(movement[0], movement[1])
+        return next_state
+
+
     def raw_move(self, from_pos, to_pos):
         from_piece = self[from_pos]
         to_piece = self[to_pos]
@@ -73,13 +78,12 @@ class Board(object):
         self.swap_who_moves()
         self.raw_move(from_pos, to_pos)
 
+    def remove_piece(self, piece):
+        pos = piece.position
+        self[pos] = None
+ 
     def __copy__(self):
         return copy.deepcopy(self)
-
-    def makeMove(self, movement):
-        next_state = self.__copy__()
-        next_state.move(movement[0], movement[1])
-        return next_state
 
     def __getitem__(self, pos): # It won't receive invalid positions.
         if out_of_world(pos):
@@ -109,10 +113,7 @@ class Board(object):
             
         return moves
 
-    def remove_piece(self, piece):
-        pos = piece.position
-        self[pos] = None
- 
+
     def kill_piece(self, piece):
         self.remove_piece(piece)
         if piece.team == black():

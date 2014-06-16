@@ -9,9 +9,6 @@ P_INF = 10000
 
 def nega_max_with_prune(board, depth, lim_inf, lim_sup):
     moves = board.generate()
-    if moves == [] or depth == 0:
-        what = board.heuristic()
-        return None, what
     best_move = choice(moves)
     best_chance = lim_inf
     for movement in moves:
@@ -19,15 +16,29 @@ def nega_max_with_prune(board, depth, lim_inf, lim_sup):
             break
 
         nextBoard = board.makeMove(movement)
-        _, mchance = nega_max_with_prune(nextBoard,
-                 depth - 1, -lim_sup, -best_chance)
+        mchance = justNegamaxWork(nextBoard, depth - 1,
+                -lim_sup, -best_chance)
 
         chance = - mchance
         if chance > best_chance:
             best_move = movement
             best_chance = chance
-        
+    print "Best Chance %s" % best_chance 
     return best_move, best_chance
+
+def justNegamaxWork(b, d, li, ls):
+    ms = b.generate()
+    if ms == [] or d == 0:
+        return b.heuristic() 
+    bc = li
+    for m in ms:
+        if bc >= ls:
+            break
+        nb = b.makeMove(m)
+        c = - justNegamaxWork(nb, d - 1, -ls, -bc)
+        if c > bc:
+            bc = c
+    return bc
 
 #=====================================
 class G10Bot(LiacBot):
