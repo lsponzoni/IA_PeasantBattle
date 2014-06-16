@@ -7,9 +7,9 @@ ROOK = 'r'
 BISHOP = 'b'
 
 FREEDOOM = 3
-PPAWN = 3
+PPAWN = 5
 WPAWN = 5
-PROOK = 10
+PROOK = 5
 WROOK = 15 
 PBISHOP = [2, 4, 5, 7, 7, 6, 4, 2] 
 WBISHOP = 14
@@ -46,7 +46,10 @@ class Piece(object):
         
     def freedomEvaluation(self): 
         if isinstance(self.generate, numbers.Number):
-            return len(self.generate) * FREEDOOM
+            if self.team == WHITE:
+                return -(len(self.generate) * FREEDOOM)
+            else:
+                return len(self.generate) * FREEDOOM
         else:
             return 0
 
