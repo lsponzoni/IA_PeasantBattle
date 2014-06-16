@@ -5,6 +5,17 @@ __all__ = ['Pawn', 'Rook', 'Bishop']
 PAWN = 'p'
 ROOK = 'r'
 BISHOP = 'b'
+
+FREEDOOM = 3
+PPAWN = 3
+WPAWN = 5
+PROOK = 10
+WROOK = 15 
+PBISHOP = [2, 4, 5, 7, 7, 6, 4, 2] 
+WBISHOP = 14
+
+MAX = 10000
+
 class Piece(object):
     def __init__(self):
         self.board = None
@@ -33,9 +44,9 @@ class Piece(object):
     def materialEvaluation(self):
         pass
         
-    def freedomEvaluation(self): #'murica # Parece caro.
+    def freedomEvaluation(self): 
         if isinstance(self.generate, numbers.Number):
-            return len(self.generate) * 3
+            return len(self.generate) * FREEDOOM
         else:
             return 0
 
@@ -106,18 +117,18 @@ class Pawn(Piece):
         ac = 0
         if self.is_white():
             if row != 7:
-                ac = row*2;
+                ac = row*PPAWN
             else:
-                ac = 1000000
+                ac = MAX
         else:
             if row != 0:
-                ac = (7-row)*2;
+                ac = (7-row)*PPAWN
             else:
-                ac = 1000000
+                ac = MAX
         return ac
 
     def materialEvaluation(self):
-        return 5
+        return WPAWN
 
     def evaluations(self):
         return self.positioningEvaluation() +\
@@ -183,14 +194,13 @@ class Rook(Piece):
     def positioningEvaluation(self):
         i, j = self.position
         if self.is_white():
-            ac = 15 - i
+            ac = PROOK - i
         else:
-            ac = 15-(7-i)
+            ac = PROOK-(7-i)
         return ac
 
     def materialEvaluation(self):
-        ac = 35
-        return ac
+        return WROOK
 
 class Bishop(Piece):
     def __init__(self, board, team, position):
@@ -234,9 +244,8 @@ class Bishop(Piece):
                 self.freedomEvaluation()
 
     def positioningEvaluation(self):
-        Pesos = [2, 4, 5, 7, 7, 6, 4, 2]
-        i, j = self.position
-        return Pesos[i] + Pesos[j]
+       i, j = self.position
+       return PBISHOP[i] + PBISHOP[j]
 
     def materialEvaluation(self):
-        return 21
+        return WBISHOP

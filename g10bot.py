@@ -2,7 +2,7 @@ import sys
 from base_client import LiacBot
 from g10Board import (Board)
 from g10color import (white, black)
-from random import choice
+from random import (choice, shuffle)
 
 M_INF = -10000
 P_INF = 10000
@@ -10,7 +10,8 @@ P_INF = 10000
 
 def nega_max_with_prune(board, depth, lim_inf, lim_sup):
     moves = board.generate()
-    best_move = choice(moves)
+    shuffle(moves)
+    best_move = moves[0]
     best_chance = lim_inf
     for movement in moves:
         if best_chance >= lim_sup:
@@ -28,7 +29,9 @@ def nega_max_with_prune(board, depth, lim_inf, lim_sup):
 
 def justNegamaxWork(b, d, li, ls):
     ms = b.generate()
-    if ms == [] or d == 0:
+    if ms == []:
+        return li
+    if d == 0:
         return b.heuristic()
     bc = li
     for m in ms:
@@ -44,7 +47,7 @@ def justNegamaxWork(b, d, li, ls):
 class G10Bot(LiacBot):
     name = 'Bot do Grupo 10'
     ip = '127.0.0.1'
-    depth = 2
+    depth = 3
 
     def __init__(self, color, port):
         super(G10Bot, self).__init__()

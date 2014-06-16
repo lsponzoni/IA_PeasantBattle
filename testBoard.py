@@ -3,11 +3,7 @@ from should_dsl import * #matchers
 from g10Board import *
 from g10color import (white, black)
 INITIAL = "r.b..b.rpppppppp................................PPPPPPPPR.B..B.R"
-def sizeW(board):
-    return len(board.white_pieces)
-def sizeB(board):
-    return len(board.black_pieces)
- 
+
 class BoardTest(unittest.TestCase):
     def setUp(self):
         self.board = Board(self.simpleState())

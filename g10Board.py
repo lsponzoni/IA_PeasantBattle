@@ -12,9 +12,12 @@ PIECES = {
         'b': Bishop,
         }
 
-PAWN = 'p'
 
-
+def sizeW(board):
+    return len(board.white_pieces)
+def sizeB(board):
+    return len(board.black_pieces)
+ 
 def linear_to_map(x):
     s = x/8
     return (7 - s, s - x)
