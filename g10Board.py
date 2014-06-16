@@ -59,8 +59,8 @@ class Board(object):
         next_state.move(movement[0], movement[1])
         return next_state
 
-
-    def raw_move(self, from_pos, to_pos):
+    def move(self, from_pos, to_pos):
+        self.who_moves = complemento(self.who_moves)
         from_piece = self[from_pos]
         to_piece = self[to_pos]
 
@@ -70,13 +70,6 @@ class Board(object):
         self.remove_piece(from_piece)
         self[to_pos] = from_piece
         from_piece.move_to(to_pos)
-
-    def swap_who_moves(self):
-        self.who_moves = complemento(self.who_moves)
-
-    def move(self, from_pos, to_pos):
-        self.swap_who_moves()
-        self.raw_move(from_pos, to_pos)
 
     def remove_piece(self, piece):
         pos = piece.position
