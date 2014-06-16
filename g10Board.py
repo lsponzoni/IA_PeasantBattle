@@ -126,10 +126,10 @@ class Board(object):
         for piece in self.white_pieces:
             ac += piece.evaluations()
         for piece in self.black_pieces:
-            ac -= piece.evaluations()
+           ac -= piece.evaluations()
         # Suspeito que isso possa ser removido    
         if self.who_moves == white(): 
-            return ac
+           return ac
         else:
             return -ac
 
