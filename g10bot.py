@@ -7,6 +7,7 @@ from random import choice
 M_INF = -10000
 P_INF = 10000
 
+
 def nega_max_with_prune(board, depth, lim_inf, lim_sup):
     moves = board.generate()
     best_move = choice(moves)
@@ -16,19 +17,19 @@ def nega_max_with_prune(board, depth, lim_inf, lim_sup):
             break
 
         nextBoard = board.makeMove(movement)
-        chance = - justNegamaxWork(nextBoard, depth - 1,
-                -lim_sup, -best_chance)
+        chance = -justNegamaxWork(nextBoard, depth - 1,\
+			-lim_sup, -best_chance)
 
         if chance > best_chance:
             best_move = movement
             best_chance = chance
     print "Best Chance %s" % best_chance 
-    return best_move, best_chance
+    return best_move
 
 def justNegamaxWork(b, d, li, ls):
     ms = b.generate()
     if ms == [] or d == 0:
-        return b.heuristic() 
+        return b.heuristic()
     bc = li
     for m in ms:
         if bc >= ls:
@@ -43,7 +44,7 @@ def justNegamaxWork(b, d, li, ls):
 class G10Bot(LiacBot):
     name = 'Bot do Grupo 10'
     ip = '127.0.0.1'
-    depth =  2
+    depth = 2
 
     def __init__(self, color, port):
         super(G10Bot, self).__init__()
@@ -51,9 +52,8 @@ class G10Bot(LiacBot):
         self.color = color
 
     def select_move(self, board):
-        move = nega_max_with_prune(board, self.depth, 
-                M_INF, P_INF)
-        return move	
+        move = nega_max_with_prune(board, self.depth, M_INF, P_INF)
+        return move
 
     def on_move(self, state):
         board =	Board(state)
@@ -64,7 +64,7 @@ class G10Bot(LiacBot):
         print 'Game Over'
 #======================================
 if __name__ == '__main__':
-    color = white() 
+    color = white()
     port = 50100
 
     if len(sys.argv) > 1:

@@ -14,8 +14,6 @@ PIECES = {
 
 PAWN = 'p'
 
-WIN_VALUE = 100 
-LOSE_VALUE = -100
 
 def linear_to_map(x):
     s = x/8
@@ -24,7 +22,7 @@ def linear_to_map(x):
 def out_of_world(position):
     i, j = position
     return not (0 <= i <= 7 and 0 <= j <= 7)
- 
+
 class Board(object):
     def __init__(self, state):
         self.cells = [[None for j in xrange(8)] for i in xrange(8)]
@@ -74,13 +72,13 @@ class Board(object):
     def remove_piece(self, piece):
         pos = piece.position
         self[pos] = None
- 
+
     def __copy__(self):
         return copy.deepcopy(self)
 
     def __getitem__(self, pos): # It won't receive invalid positions.
         if out_of_world(pos):
-            return None 
+            return None
         i, j = pos
         return self.cells[i][j]
 
@@ -103,7 +101,6 @@ class Board(object):
             destinies = piece.generate()
             piece_moves = [(piece.position, m) for m in destinies]
             moves.extend(piece_moves)
-            
         return moves
 
 
@@ -119,12 +116,10 @@ class Board(object):
         for piece in self.white_pieces:
             ac += piece.evaluations()
         for piece in self.black_pieces:
-           ac -= piece.evaluations()
-        # Suspeito que isso possa ser removido    
-        if self.who_moves == white(): 
-           return ac
-        else:
-            return -ac
+            ac -= piece.evaluations()
+        if self.who_moves == black():
+            ac = -ac
+        return ac
 
     def is_enpassant(self, pos):
         enp = self.enpassant
