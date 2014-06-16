@@ -1,1 +1,3 @@
 *.cmd
+*.pyc
+random_bot.py
