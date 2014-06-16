@@ -22,6 +22,10 @@ def linear_to_map(x):
     s = x/8
     return (7 - s, s - x)
 
+def out_of_world(position):
+    i, j = position
+    return not (0 <= i <= 7 and 0 <= j <= 7)
+ 
 class Board(object):
     def __init__(self, state):
         self.cells = [[None for j in xrange(8)] for i in xrange(8)]
@@ -42,25 +46,24 @@ class Board(object):
                 i += 1
 
     def new_piece(self, type_, pos):
-        team = -1 if type_.isupper() else 1
+        team = white() if type_.isupper() else black()
         cls = PIECES[type_.lower()]
         piece = cls(self, team, pos)
         self.cells[pos[0]][pos[1]] = piece
-        if type_.isupper() == type_:
-            self.white_pieces.append(piece)
-        else:
+        if team == black():
             self.black_pieces.append(piece)
+        else:
+            self.white_pieces.append(piece)
 
     def raw_move(self, from_pos, to_pos):
         from_piece = self[from_pos]
         to_piece = self[to_pos]
 
         if to_piece is not None:
-            self.remove_piece(to_piece)
+            self.kill_piece(to_piece)
 
-        from_piece.move_to(to_pos)
+        self.remove_piece(from_piece)
         self[to_pos] = from_piece
-        self[from_pos] = None
         from_piece.move_to(to_pos)
 
     def swap_who_moves(self):
@@ -79,10 +82,15 @@ class Board(object):
         return next_state
 
     def __getitem__(self, pos): # It won't receive invalid positions.
-        return self.cells[pos[0]][pos[1]]
+        if out_of_world(pos):
+            return None 
+        i, j = pos
+        return self.cells[i][j]
 
     def __setitem__(self, pos, value):
-        self.cells[pos[0]][pos[1]] = value
+        if not out_of_world(pos):
+            i, j = pos
+            self.cells[i][j] = value
 
     def is_empty(self, pos):
         return self[pos] is None
@@ -95,15 +103,18 @@ class Board(object):
     def generate(self):
         moves = []
         for piece in self.my_pieces():
-            piece_destiny = piece.generate()
-            next_moves = [(piece.position, m) for m in piece_destiny]
-            moves.extend(next_moves)
+            destinies = piece.generate()
+            piece_moves = [(piece.position, m) for m in destinies]
+            moves.extend(piece_moves)
             
         return moves
 
     def remove_piece(self, piece):
         pos = piece.position
         self[pos] = None
+ 
+    def kill_piece(self, piece):
+        self.remove_piece(piece)
         if piece.team == black():
             self.black_pieces.remove(piece)
         else:

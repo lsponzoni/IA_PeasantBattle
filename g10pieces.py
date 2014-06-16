@@ -5,7 +5,6 @@ __all__ = ['Pawn', 'Rook', 'Bishop']
 PAWN = 'p'
 ROOK = 'r'
 BISHOP = 'b'
-
 class Piece(object):
     def __init__(self):
         self.board = None
@@ -52,6 +51,12 @@ class Piece(object):
     def is_black(self):
         return self.team != white()
 
+    def repr(self):
+        return "%s%s%s" % (self.kind, 
+                self.position[0], self.position[1])
+
+       
+
 class Pawn(Piece):
     def __init__(self, board, team, position):
         self.board = board
@@ -83,13 +88,15 @@ class Pawn(Piece):
         # Normal capture to right
         pos = (my_row + d*1, my_col+1)
         piece = self.board[pos]
-        if self.is_opponent(piece) or self.board.is_enpassant(pos):
+        if piece != None and self.is_opponent(piece) or\
+                    self.board.is_enpassant(pos):
             moves.append(pos)
 
         # Normal capture to left
         pos = (my_row + d*1, my_col-1)
         piece = self.board[pos]
-        if self.is_opponent(piece) or self.board.is_enpassant(pos):
+        if piece != None and self.is_opponent(piece) or\
+                    self.board.is_enpassant(pos):
             moves.append(pos)
 
         return moves
@@ -103,7 +110,7 @@ class Pawn(Piece):
             else:
                 ac = 1000000
         else:
-            if row != 7:
+            if row != 0:
                 ac = (7-row)*2;
             else:
                 ac = 1000000

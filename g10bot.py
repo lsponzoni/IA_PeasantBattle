@@ -9,24 +9,21 @@ P_INF = 10000
 
 def nega_max_with_prune(board, depth, lim_inf, lim_sup):
     moves = board.generate()
-    print "Of %s" % moves
     if moves == [] or depth == 0:
-        h = board.heuristic()
-        print "Give me money pls:>> %s" % h
-        return None, h 
+        what = board.heuristic()
+        return None, what
     best_move = choice(moves)
-    print "CHOOSE Any guy %s" % best_move
     best_chance = lim_inf
     for movement in moves:
         if best_chance >= lim_sup:
-            print "PREMATURO%s" %(depth) 
             break
+
         nextBoard = board.makeMove(movement)
         _, mchance = nega_max_with_prune(nextBoard,
                  depth - 1, -lim_sup, -best_chance)
+
         chance = - mchance
         if chance > best_chance:
-            print "What is wrong"
             best_move = movement
             best_chance = chance
         
@@ -36,7 +33,7 @@ def nega_max_with_prune(board, depth, lim_inf, lim_sup):
 class G10Bot(LiacBot):
     name = 'Bot do Grupo 10'
     ip = '127.0.0.1'
-    depth =  1
+    depth =  2
 
     def __init__(self, color, port):
         super(G10Bot, self).__init__()
@@ -52,8 +49,7 @@ class G10Bot(LiacBot):
         board =	Board(state)
         move = self.select_move(board)
         self.send_move(move[0], move[1])
-        print "Move %s" % move
-
+        print "Move (%s) -> (%s)" % (move[0], move[1])
     def on_game_over(self, state):
         print 'Game Over'
 #======================================
